@@ -1,0 +1,143 @@
+﻿@page
+@model NotificationGateway.UI.Pages.DashboardModel
+@{
+    ViewData["Title"] = "Notification Rate Monitoring Dashboard";
+}
+
+<div class="container">
+    <h2>Notifications Rate Monitoring Dashboard</h2>
+
+    <div class="filter-section">
+        <h4>Filters</h4>
+
+        <div>
+            <label for="phoneNumberFilter">Phone Number:</label>
+            <input type="text" id="phoneNumberFilter" placeholder="Enter Phone Number" class="form-control">
+        </div>
+
+        <div>
+            <label for="accountFilter">Account:</label>
+            <input type="text" id="accountFilter" placeholder="Enter Account" class="form-control">
+
+        </div>
+        <div>
+            <label for="startDateFilter">Start Date:</label>
+            <input type="datetime-local" id="startDateFilter" class="form-control">
+        </div>
+
+        <div>
+            <label for="endDateFilter">End Date:</label>
+            <input type="datetime-local" id="endDateFilter" class="form-control">
+        </div>
+
+        <button class="btn btn-primary" onclick="applyFilters()">Apply Filters</button>
+    </div>
+
+    <div>
+        <h4>Messages per Business Number</h4>
+        <canvas id="businessChart" width="400" height="200"></canvas>
+    </div>
+
+    <div>
+        <h4>Messages per Account</h4>
+        <canvas id="accountChart" width="400" height="200"></canvas>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <script>
+        // Variables to hold the chart instances
+        let businessChartInstance = null;
+        let accountChartInstance = null;
+
+        // Function to fetch data from the API and update the chart
+        function fetchChartData(url, chartId, chartInstance) {
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log("API Response Data:", data);
+
+                    const labels = data.map(item => item.time);
+                    const counts = data.map(item => item.count);
+
+                    const ctx = document.getElementById(chartId).getContext('2d');
+
+                    // Destroy the existing chart instance before creating a new one
+                    if (chartInstance) {
+                        chartInstance.destroy(); // Destroy the previous chart
+                    }
+
+                    // Create a new chart instance
+                    chtInstance = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: labels,
+                            datasets: [{
+                                label: 'SMS Messages',
+                                data: counts,
+                                borderColor: 'rgb(75, 192, 192)',
+                                fill: false,
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                x: {
+                                    type: 'category',
+                                    title: {
+                                        display: true,
+                                        text: 'Time'
+                                    }
+                                },
+                                y: {
+                                    ticks: {
+                                        beginAtZero: true
+                                    },
+                                    title: {
+                                        display: true,
+                                        text: 'Message Count'
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    switch (chartId) { 
+                        case "businessChart": businessChartInstance = chtInstance; break;
+                        case "accountChart": accountChartInstance = chtInstance; break;
+                };
+                                    
+                })
+                .catch(error => console.error('Error fetching data:', error));
+        }
+
+        // Apply filters based on user input
+        function applyFilters() {
+            const phoneNumber = document.getElementById('phoneNumberFilter').value;
+            const account = document.getElementById('accountFilter').value;
+            const startDate = document.getElementById('startDateFilter').value;
+            const endDate = document.getElementById('endDateFilter').value;
+
+            // Construct the URL for business and account chart fetch based on filters
+            let businessUrl = `https://localhost:7045/api/notificationgatewayservice/business/${phoneNumber}?`;
+            if (startDate) businessUrl += `startDate=${new Date(startDate).toISOString()}&`;
+            if (endDate) businessUrl += `endDate=${new Date(endDate).toISOString()}`;
+
+            let accountUrl = `https://localhost:7045/api/notificationgatewayservice/account/${account}?`;
+            if (startDate) accountUrl += `startDate=${new Date(startDate).toISOString()}&`;
+            if (endDate) accountUrl += `endDate=${new Date(endDate).toISOString()}`;
+
+            // Fetch the filtered data
+            if (phoneNumber != "") fetchChartData(businessUrl, 'businessChart', businessChartInstance);
+            if (account != "") fetchChartData(accountUrl, 'accountChart', accountChartInstance);
+        }
+
+        // Fetch data initially with default values
+        window.onload = function () {
+            // fetchChartData('https://localhost:7045/api/notificationgatewayservice/business/business1', 'businessChart', businessChartInstance);
+            // fetchChartData('https://localhost:7045/api/notificationgatewayservice/account/account1', 'accountChart', accountChartInstance);
+        };
+    </script>
+}
+
