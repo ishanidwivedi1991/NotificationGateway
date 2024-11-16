@@ -48,9 +48,14 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <script>
+
+        const url = `https://localhost:7045`;
+
+
         // Variables to hold the chart instances
         let businessChartInstance = null;
         let accountChartInstance = null;
+        
 
         // Function to fetch data from the API and update the chart
         function fetchChartData(url, chartId, chartInstance) {
@@ -118,13 +123,14 @@
             const account = document.getElementById('accountFilter').value;
             const startDate = document.getElementById('startDateFilter').value;
             const endDate = document.getElementById('endDateFilter').value;
+            
 
             // Construct the URL for business and account chart fetch based on filters
-            let businessUrl = `https://localhost:7045/api/notificationgatewayservice/business/${phoneNumber}?`;
+            let businessUrl = `${url}/api/notificationgatewayservice/business/${phoneNumber}?`;
             if (startDate) businessUrl += `startDate=${new Date(startDate).toISOString()}&`;
             if (endDate) businessUrl += `endDate=${new Date(endDate).toISOString()}`;
 
-            let accountUrl = `https://localhost:7045/api/notificationgatewayservice/account/${account}?`;
+            let accountUrl = `${url}/api/notificationgatewayservice/account/${account}?`;
             if (startDate) accountUrl += `startDate=${new Date(startDate).toISOString()}&`;
             if (endDate) accountUrl += `endDate=${new Date(endDate).toISOString()}`;
 
@@ -132,12 +138,7 @@
             if (phoneNumber != "") fetchChartData(businessUrl, 'businessChart', businessChartInstance);
             if (account != "") fetchChartData(accountUrl, 'accountChart', accountChartInstance);
         }
-
-        // Fetch data initially with default values
-        window.onload = function () {
-            // fetchChartData('https://localhost:7045/api/notificationgatewayservice/business/business1', 'businessChart', businessChartInstance);
-            // fetchChartData('https://localhost:7045/api/notificationgatewayservice/account/account1', 'accountChart', accountChartInstance);
-        };
+        
     </script>
 }
 
