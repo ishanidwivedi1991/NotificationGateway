@@ -13,5 +13,6 @@ To test the functionality on local, do below steps:
 5. Open file Dashboard.cshtml and modify url at line 52.
 6. Save, Build and Run the solution.
 7. Open Endpoints Explorer in Visual Studio or Postman to do the POST request. Sample data is present in NotificationGateway.http
-8. Once POST request is completed successfully, go to front end and enter information for Business Phone Number and Account Number, date/time range
+8. Once POST request is completed successfully, navigate to browser and enter information for Business Phone Number and Account Number, date/time range and hit 'Apply Filter' button.
 9. The data should be displayed in the charts below
+10. If no data is displayed in charts then no such data exists with entered filter criteria
